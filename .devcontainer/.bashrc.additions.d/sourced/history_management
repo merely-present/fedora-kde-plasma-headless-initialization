@@ -1,0 +1,20 @@
+#!/bin/bash
+
+# Ensure that this file is sourced, not executed
+if [[ ${BASH_SOURCE[0]} == "${0}" ]]; then
+    echo "This file must be sourced, not executed." >&2
+    exit 1
+fi
+
+
+# History Management Settings
+
+# Append to the history file after each command
+PROMPT_COMMAND="${PROMPT_COMMAND:+$PROMPT_COMMAND; }history -a"
+
+# Set history sizes
+export HISTSIZE=500000
+export HISTFILESIZE=1000000
+
+# Ignore duplicate commands and commands starting with a space
+export HISTCONTROL=ignorespace:erasedups

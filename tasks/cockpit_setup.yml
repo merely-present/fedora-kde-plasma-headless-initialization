@@ -1,0 +1,19 @@
+---
+- name: Install Cockpit
+  ansible.builtin.dnf:
+    name: cockpit
+    state: present
+
+- name: Enable and start cockpit.socket
+  ansible.builtin.systemd:
+    name: cockpit.socket
+    enabled: true
+    state: started
+
+- name: Add cockpit to firewall zone
+  ansible.posix.firewalld:
+    zone: home
+    service: cockpit
+    permanent: true
+    immediate: true
+    state: enabled

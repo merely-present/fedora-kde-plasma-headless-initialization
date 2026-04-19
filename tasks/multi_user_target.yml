@@ -1,0 +1,17 @@
+---
+- name: Get current default target
+  ansible.builtin.command: systemctl get-default
+  register: default_target
+  changed_when: false
+
+- name: Set default boot target to multi_user
+  ansible.builtin.command: systemctl set-default multi-user.target
+  when: default_target.stdout != 'multi-user.target'
+  changed_when: true
+
+- name: Isolate multi-user.target live
+  ansible.builtin.command: systemctl isolate multi-user.target
+  when: default_target.stdout != 'multi-user.target'
+  changed_when: true
+  tags:
+    - skip_ansible_lint

@@ -1,0 +1,36 @@
+---
+- name: Ensure ~/.bashrc.additions.d directory exists
+  ansible.builtin.file:
+    path: "~/.bashrc.additions.d"
+    state: directory
+    mode: "0755"
+    owner: "{{ ansible_user }}"
+
+- name: Copy .bashrc.additions.d folder contents
+  ansible.builtin.copy:
+    src: dotfiles/.bashrc.additions.d/
+    dest: "~/.bashrc.additions.d/"
+    mode: "0755"
+    owner: "{{ ansible_user }}"
+
+- name: Copy .bashrc.additions
+  ansible.builtin.copy:
+    src: dotfiles/.bashrc.additions
+    dest: "~/.bashrc.additions"
+    mode: "0755"
+    owner: "{{ ansible_user }}"
+
+- name: Read local .bashrc.addendum
+  ansible.builtin.set_fact:
+    addendum_content: "{{ lookup('file', 'dotfiles/.bashrc.addendum') }}"
+
+- name: Fail if .bashrc.addendum is missing the required '###' delimiter
+  ansible.builtin.assert:
+    that: "'###' in addendum_content"
+    fail_msg: "The required '###' delimiter is missing from dotfiles/.bashrc.addendum"
+
+- name: Source .bashrc.additions in ~/.bashrc
+  ansible.builtin.blockinfile:
+    path: "~/.bashrc"
+    marker: "### {mark} ANSIBLE MANAGED BLOCK ###"
+    block: "{{ addendum_content.split('###')[1] | trim }}"

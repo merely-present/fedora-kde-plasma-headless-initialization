@@ -1,0 +1,36 @@
+---
+- name: Fedora KDE Plasma Headless Initialization
+  hosts: all
+  become: true
+
+  tasks:
+    - name: FDE Decryption Setup
+      ansible.builtin.import_tasks: tasks/dracut_sshd_fde_unlock.yml
+      tags:
+        - dracut-sshd
+
+    - name: Headless Monitor Idle Poweroff
+      ansible.builtin.import_tasks: tasks/headless_monitor_poweroff.yml
+      tags:
+        - monitor-poweroff
+
+    - name: Firewall Zone Setup
+      ansible.builtin.import_tasks: tasks/firewall_zone_setup.yml
+      tags:
+        - firewall
+
+    - name: Cockpit Setup
+      ansible.builtin.import_tasks: tasks/cockpit_setup.yml
+      tags:
+        - cockpit
+
+    - name: Setup Multi-user Target
+      ansible.builtin.import_tasks: tasks/multi_user_target.yml
+      tags:
+        - multi-user
+
+    - name: Setup Dotfiles
+      ansible.builtin.import_tasks: tasks/setup_dotfiles.yml
+      become: false
+      tags:
+        - dotfiles

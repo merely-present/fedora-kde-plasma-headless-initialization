@@ -1,0 +1,12 @@
+#!/bin/bash
+
+printf "Do not run or source this file directly." >&2
+exit 1
+
+###
+
+# Setup originated from the fedora-kde-plasma-headless-initialization repo
+# Source our custom bash additions
+if [ -f "$HOME/.bashrc.additions" ]; then
+    . "$HOME/.bashrc.additions"
+fi

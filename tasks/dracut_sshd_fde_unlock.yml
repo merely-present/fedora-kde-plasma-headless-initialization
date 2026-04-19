@@ -1,0 +1,85 @@
+---
+- name: Install dracut-sshd
+  ansible.builtin.dnf:
+    name: dracut-sshd
+    state: present
+  register: check_dracut_pkg
+
+- name: Enable OpenSSH service
+  ansible.builtin.systemd:
+    name: sshd
+    enabled: true
+    state: started
+
+- name: Ensure /etc/systemd/network directory exists
+  ansible.builtin.file:
+    path: /etc/systemd/network
+    state: directory
+    mode: "0755"
+    owner: root
+    group: root
+
+- name: Create systemd-networkd wired config for early boot
+  ansible.builtin.copy:
+    dest: /etc/systemd/network/20-wired.network
+    mode: "0644"
+    owner: root
+    group: root
+    content: |
+      [Match]
+      Name=e*
+
+      [Network]
+      DHCP=ipv4
+  register: check_network_cfg
+
+- name: Ensure /etc/dracut.conf.d directory exists
+  ansible.builtin.file:
+    path: /etc/dracut.conf.d
+    state: directory
+    mode: "0755"
+    owner: root
+    group: root
+
+- name: Add systemd-networkd to initramfs
+  ansible.builtin.copy:
+    dest: /etc/dracut.conf.d/90-networkd.conf
+    mode: "0644"
+    owner: root
+    group: root
+    content: |
+      install_items+=" /etc/systemd/network/20-wired.network "
+      add_dracutmodules+=" systemd-networkd "
+  register: check_dracut_cfg
+
+- name: Ensure /root/.ssh directory exists
+  ansible.builtin.file:
+    path: /root/.ssh
+    state: directory
+    mode: "0700"
+    owner: root
+    group: root
+
+- name: Copy target user's authorized_keys to root's dracut_authorized_keys
+  ansible.builtin.copy:
+    src: "~{{ ansible_user }}/.ssh/authorized_keys"
+    dest: /root/.ssh/dracut_authorized_keys
+    remote_src: true
+    mode: "0600"
+    owner: root
+    group: root
+  register: check_dracut_keys
+
+- name: Fix root account shadow token
+  ansible.builtin.user:
+    name: root
+    password: "*"
+
+- name: Rebuild initramfs
+  ansible.builtin.command: dracut -f -v --regenerate-all
+  when: >
+    check_dracut_pkg.changed or check_network_cfg.changed or
+    check_dracut_cfg.changed or check_dracut_keys.changed
+  changed_when: true
+  tags:
+    - skip_ansible_lint

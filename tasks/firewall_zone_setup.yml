@@ -1,0 +1,21 @@
+---
+- name: Ensure firewalld is running
+  ansible.builtin.systemd:
+    name: firewalld
+    state: started
+
+- name: Set firewall zone for active interface
+  ansible.posix.firewalld:
+    zone: home
+    interface: "{{ ansible_default_ipv4.interface }}"
+    permanent: true
+    state: enabled
+  register: firewall_zone_change
+
+- name: Reload firewalld
+  ansible.builtin.service:
+    name: firewalld
+    state: reloaded
+  when: firewall_zone_change.changed
+  tags:
+    - skip_ansible_lint
