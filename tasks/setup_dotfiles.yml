@@ -24,7 +24,7 @@
   ansible.builtin.set_fact:
     addendum_content: "{{ lookup('file', 'dotfiles/.bashrc.addendum') }}"
 
-- name: Fail if .bashrc.addendum is missing the required '###' delimiter
+- name: Assert that .bashrc.addendum contains the required '###' delimiter
   ansible.builtin.assert:
     that: "'###' in addendum_content"
     fail_msg: "The required '###' delimiter is missing from dotfiles/.bashrc.addendum"

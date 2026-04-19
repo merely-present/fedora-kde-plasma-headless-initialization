@@ -42,7 +42,7 @@ sudo mkdir -p /etc/systemd/network
 sudo nano /etc/systemd/network/20-wired.network
 ```
 
-Add the following content (adjust `Name=` if your interface name does not start with `e`):
+Add the following content (adjust `Name=` if the interface name does not start with `e`):
 
 ```ini
 [Match]
@@ -210,7 +210,7 @@ The initramfs environment only has a root user. Connecting as the normal usernam
 
 ### Root account change implications
 
-Changing the root shadow field from `!` to `*` means password authentication for root remains impossible (neither token is a valid password hash). The effect on public key authentication for root on the fully booted system with `PermitRootLogin prohibit-password` (the Fedora default) is not fully verified. In practice, key-based root login on the booted system did not appear to work as expected after this change, which is consistent with the expectation that `*` only affects behavior in the no-PAM initramfs context. Confirm behavior on your specific setup.
+Changing the root shadow field from `!` to `*` means password authentication for root remains impossible (neither token is a valid password hash). The effect on public key authentication for root on the fully booted system with `PermitRootLogin prohibit-password` (the Fedora default) is not fully verified. In practice, key-based root login on the booted system did not appear to work as expected after this change, which is consistent with the expectation that `*` only affects behavior in the no-PAM initramfs context. Confirm behavior on the specific setup.
 
 ### Authorized keys file on unencrypted /boot
 

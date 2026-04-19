@@ -22,7 +22,7 @@ Enable and start the socket (not the service directly, it runs on demand):
 sudo systemctl enable --now cockpit.socket
 ```
 
-Allow the service through the firewall in your designated zone (`home`):
+Allow the service through the firewall in the designated zone (`home`):
 
 ```bash
 sudo firewall-cmd --zone=home --add-service=cockpit
@@ -34,4 +34,4 @@ sudo firewall-cmd --zone=home --add-service=cockpit --permanent
 Access the console by navigating to:
 `https://{server_ip}:9090`
 
-Log in using the sudo-enabled credentials configured on your server.
+Log in using the sudo-enabled credentials configured on the server.

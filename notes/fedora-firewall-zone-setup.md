@@ -29,9 +29,9 @@ Check the active zones and confirm the interface is listed under `home`:
 sudo firewall-cmd --get-active-zones
 ```
 
-You should see:
+The output should be:
 
-```
+```plaintext
 home
   interfaces: e*
 ```
