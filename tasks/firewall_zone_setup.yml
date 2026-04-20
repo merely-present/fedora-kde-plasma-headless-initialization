@@ -1,21 +1,42 @@
 ---
-- name: Ensure firewalld is running
-  ansible.builtin.systemd:
-    name: firewalld
-    state: started
+- name: Set target firewall zone
+  ansible.builtin.set_fact:
+    firewall_zone: "home"
 
-- name: Set firewall zone for active interface
-  ansible.posix.firewalld:
-    zone: home
-    interface: "{{ ansible_default_ipv4.interface }}"
-    permanent: true
-    state: enabled
-  register: firewall_zone_change
+- name: Get NetworkManager connection name for active interface
+  ansible.builtin.command: nmcli --get-values GENERAL.CONNECTION device show '{{ ansible_default_ipv4.interface }}'
+  register: nm_connection_name
+  changed_when: false
 
-- name: Reload firewalld
-  ansible.builtin.service:
-    name: firewalld
-    state: reloaded
-  when: firewall_zone_change.changed
-  tags:
-    - skip_ansible_lint
+- name: Get current zone for connection
+  ansible.builtin.command: nmcli --get-values connection.zone connection show '{{ nm_connection_name.stdout }}'
+  register: nm_current_zone
+  changed_when: false
+
+- name: Determine if firewall zone change is required
+  ansible.builtin.set_fact:
+    zone_change_required: "{{ nm_current_zone.stdout != firewall_zone }}"
+
+- name: Set firewall zone on NetworkManager connection
+  ansible.builtin.command: nmcli connection modify '{{ nm_connection_name.stdout }}' connection.zone '{{ firewall_zone }}'
+  when: zone_change_required
+  changed_when: true
+
+- name: Confirm firewall zone is set correctly
+  ansible.builtin.command: nmcli --get-values connection.zone connection show '{{ nm_connection_name.stdout }}'
+  register: nm_confirm_zone
+  changed_when: false
+  failed_when: nm_confirm_zone.stdout != firewall_zone
+
+- name: Re-establish connection to update DHCP hostname
+  ansible.builtin.command: nmcli connection up '{{ nm_connection_name.stdout }}'
+  when: zone_change_required
+  async: 1
+  poll: 0
+  changed_when: false
+
+- name: Wait for connection to recover
+  ansible.builtin.wait_for_connection:
+    delay: 5
+    timeout: 120
+  when: zone_change_required
