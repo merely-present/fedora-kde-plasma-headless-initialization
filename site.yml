@@ -4,6 +4,11 @@
   become: true
 
   tasks:
+    - name: Hostname Setup
+      ansible.builtin.import_tasks: tasks/hostname_setup.yml
+      tags:
+        - hostname
+
     - name: FDE Decryption Setup
       ansible.builtin.import_tasks: tasks/dracut_sshd_fde_unlock.yml
       tags:

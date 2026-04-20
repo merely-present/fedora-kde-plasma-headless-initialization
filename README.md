@@ -42,10 +42,10 @@ Before running the playbook, ensure the following steps are completed on the loc
 
 Instead of maintaining a static `inventory` file, the initialization can be run directly against the target server on the fly, right from the terminal.
 
-Run the following command, replacing `{server_ip}` with the server's IP address, `{username}` with the target user, and `{path_to_private_key}` with the path to the private key:
+Run the following command, replacing `{server_ip}` with the server's IP address, `{username}` with the target user, `{path_to_private_key}` with the path to the private key, and `{target_hostname}` with the desired hostname for the server. If the `target_hostname` variable is omitted, the hostname configuration step will be skipped:
 
 ```bash
-ansible-playbook -i "{server_ip}," -u {username} --private-key {path_to_private_key} site.yml --ask-become-pass -vv
+ansible-playbook -i "{server_ip}," -u {username} --private-key {path_to_private_key} site.yml --ask-become-pass --extra-vars "target_hostname={target_hostname}" -vv
 ```
 
 *(The `-K` flag, or `--ask-become-pass`, will prompt for the sudo password required for privilege escalation).*
