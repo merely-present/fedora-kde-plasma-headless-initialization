@@ -9,6 +9,11 @@
       tags:
         - hostname
 
+    - name: Sudo Timeout Setup
+      ansible.builtin.import_tasks: tasks/sudo_timeout_setup.yml
+      tags:
+        - sudo-timeout
+
     - name: FDE Decryption Setup
       ansible.builtin.import_tasks: tasks/dracut_sshd_fde_unlock.yml
       tags:

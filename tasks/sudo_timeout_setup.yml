@@ -1,0 +1,9 @@
+---
+- name: Set sudo password timeout to 3 hours
+  ansible.builtin.copy:
+    dest: /etc/sudoers.d/timeout
+    content: "Defaults timestamp_timeout=180\n"
+    mode: '0440'
+    owner: root
+    group: root
+    validate: /usr/sbin/visudo -cf %s
