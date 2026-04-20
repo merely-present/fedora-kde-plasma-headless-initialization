@@ -1,35 +1,38 @@
-# ~/.bashrc.additions
-# Source, execute, or add to PATH custom scripts in a modular way
+#!/bin/bash
 
-export _BASH_ADDITIONS_DIR="$HOME/.bashrc.additions.d"
+# Ensure that this file is sourced, not executed
+if [[ ${BASH_SOURCE[0]} == "${0}" ]]; then
+    echo "This file must be sourced, not executed." >&2
+    exit 1
+fi
 
-# 1. Source all files under sourced/
-if [ -d "$_BASH_ADDITIONS_DIR/sourced" ]; then
+# Source all files under ~/.bashrc.additions.d/sourced
+if [ -d "$HOME/.bashrc.additions.d/sourced" ]; then
   printf '\033[32msourced\033[0m:'
-  while IFS= read -r -d '' .bashrc.additions_item; do
-    . "$.bashrc.additions_item"
-    printf " '%s'" "${.bashrc.additions_item#"$_BASH_ADDITIONS_DIR/sourced/"}"
-  done < <(find "$_BASH_ADDITIONS_DIR/sourced" -type f -print0 | sort -z)
+  while IFS= read -r -d '' _bash_additions_item; do
+    . "$_bash_additions_item"
+    printf " '%s'" "${_bash_additions_item#"$HOME/.bashrc.additions.d/sourced/"}"
+  done < <(find "$HOME/.bashrc.additions.d/sourced" -type f -print0 | sort -z)
 fi
 
-# 2. Add scripts/ to PATH
-if [ -d "$_BASH_ADDITIONS_DIR/scripts" ]; then
-  export PATH="$_BASH_ADDITIONS_DIR/scripts:$PATH"
+# Add ~/.bashrc.additions.d/scripts to PATH
+if [ -d "$HOME/.bashrc.additions.d/scripts" ]; then
+  export PATH="$HOME/.bashrc.additions.d/scripts:$PATH"
 fi
 
-# 3. Execute all files under executed/, once per shell session tree
-if [ -d "$_BASH_ADDITIONS_DIR/executed" ]; then
+# Execute all files under ~/.bashrc.additions.d/executed, once per shell session tree
+if [ -d "$HOME/.bashrc.additions.d/executed" ]; then
   printf ' | \033[36mexecuted\033[0m:'
   if [ -t 0 ] && [ -z "$_BASHRC_RUN_ONCE_DONE" ]; then
     export _BASHRC_RUN_ONCE_DONE=1
-    while IFS= read -r -d '' .bashrc.additions_item; do
-      if [ -x "$.bashrc.additions_item" ]; then
-        "$.bashrc.additions_item"
-        printf " '%s'" "${.bashrc.additions_item#"$_BASH_ADDITIONS_DIR/executed/"}"
+    while IFS= read -r -d '' _bash_additions_item; do
+      if [ -x "$_bash_additions_item" ]; then
+        "$_bash_additions_item"
+        printf " '%s'" "${_bash_additions_item#"$HOME/.bashrc.additions.d/executed/"}"
       fi
-    done < <(find "$_BASH_ADDITIONS_DIR/executed" -type f -print0 | sort -z)
+    done < <(find "$HOME/.bashrc.additions.d/executed" -type f -print0 | sort -z)
   fi
   printf '\n'
 fi
 
-unset .bashrc.additions_item
+unset _bash_additions_item

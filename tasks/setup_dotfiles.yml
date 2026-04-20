@@ -17,7 +17,7 @@
   ansible.builtin.copy:
     src: dotfiles/.bashrc.additions
     dest: "~/.bashrc.additions"
-    mode: "0755"
+    mode: "0644"
     owner: "{{ ansible_user }}"
 
 - name: Read local .bashrc.addendum
