@@ -7,6 +7,8 @@ if [[ ${BASH_SOURCE[0]} == "${0}" ]]; then
 fi
 
 
+# Default Editors Settings
+
 # Set the default editor
 export EDITOR=nano
 

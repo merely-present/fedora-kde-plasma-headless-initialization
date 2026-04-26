@@ -18,3 +18,9 @@ export HISTFILESIZE=1000000
 
 # Ignore duplicate commands and commands starting with a space
 export HISTCONTROL=ignorespace:erasedups
+
+# Multiline history entries are stored literally
+shopt -s lithist
+
+# Verify history retrieval before executing
+shopt -s histverify
