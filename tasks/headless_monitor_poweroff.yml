@@ -1,13 +1,18 @@
 ---
-- name: Check if consoleblank parameter is already set
-  ansible.builtin.shell: set -o pipefail && grubby --info=ALL | grep -q 'args=.*consoleblank=30'
-  args:
-    executable: /bin/bash
-  register: consoleblank_check
-  failed_when: false
+# --info=ALL is diffed before and after as grubby does not signal modification
+
+- name: Capture grubby state before consoleblank update
+  ansible.builtin.command: grubby --info=ALL
+  register: grubby_before
+  changed_when: false
+  check_mode: false
+
+- name: Ensure consoleblank kernel parameter is set on all kernels
+  ansible.builtin.command: grubby --update-kernel=ALL --args="consoleblank=30"
   changed_when: false
 
-- name: Set consoleblank kernel parameter for headless monitor power off
-  ansible.builtin.command: grubby --update-kernel=ALL --args="consoleblank=30"
-  when: consoleblank_check.rc != 0
-  changed_when: true
+- name: Capture grubby state after consoleblank update and report change
+  ansible.builtin.command: grubby --info=ALL
+  register: grubby_after
+  changed_when: grubby_before.stdout != grubby_after.stdout
+  check_mode: false
