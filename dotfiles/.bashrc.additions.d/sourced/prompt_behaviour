@@ -7,10 +7,7 @@ if [[ ${BASH_SOURCE[0]} == "${0}" ]]; then
 fi
 
 
-# Default Editors Settings
+# Prompt Behavior Settings
 
-# Set the default editor
-export EDITOR=nano
-
-# Set default visual editor
-export VISUAL='code --wait --reuse-window'
+# Spell correction on non-existent directories
+shopt -s dirspell
